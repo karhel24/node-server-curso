@@ -1,9 +1,18 @@
+// Ejecuta y carga todo lo que tenga el archivo (variables globales)
+require('./config/config');
+
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-// Eejcuta y carga todo lo que tenga el archivo (variables globales)
-require('../config/config');
+
+
+var options = {
+
+    useNewUrlParser: true,
+    useCreateIndex: true
+};
 
 /***
  * El use son Middlewares
@@ -14,48 +23,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json. 
 app.use(bodyParser.json());
 
-app.get('/', function(req, res) {
-    res.json('Hello World');
-});
+app.use(require('./routes/usuario.js'));
 
-app.get('/usuario', function(req, res) {
-    res.json('Estamos en usuario con GET');
-});
+// Base de datos
+mongoose.connect(process.env.URLDB, options, (err, res) => {
+    if (err) throw err;
 
-// Procesar un paquete y serializarla en un objeto JSON
-app.post('/usuario', function(req, res) {
-
-    //res.json('Estamos en usuario con POST');
-
-    // Cualquier body que procese un payload
-    let body = req.body;
-
-    if (body.nombre === undefined) {
-        res.status(400).json({
-            ok: false,
-            mensaje: 'El nombre es necesario.'
-        });
-    } else {
-        res.json({
-            persona: body
-        });
-    }
-
+    console.log('Base de datos Online!');
 
 });
 
-// :parametro
-app.put('/usuario/:id', function(req, res) {
-    let param_id = req.params.id;
-    res.json({
-        id: param_id
-    });
-});
-
-app.delete('/usuario', function(req, res) {
-    res.json('Estamos en usuario con DELETE');
-});
-
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
     console.log('Escuchando puerto: ', process.env.PORT);
 });
