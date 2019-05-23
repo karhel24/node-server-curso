@@ -4,12 +4,13 @@ const Usuario = require('../models/usuario');
 const bCrypt = require('bcrypt');
 const _ = require('underscore');
 
+const { verificaToken, verificaAdminRol } = require('../middlewares/autenticacion');
 
 app.get('/', function(req, res) {
     res.json('Hello World');
 });
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', verificaToken, (req, res) => {
 
     //Uso de objetos opcionales
     let desde = Number(req.query.desde) || 0; // si no viene desde empezará desde la primera pagina. los primeros registros
@@ -27,7 +28,7 @@ app.get('/usuario', function(req, res) {
                 });
             }
 
-            Usuario.count({ estado: true },
+            Usuario.countDocuments({ estado: true },
                 (err, cuenta) => {
                     res.json({
                         ok: true,
@@ -41,7 +42,7 @@ app.get('/usuario', function(req, res) {
 });
 
 // Procesar un paquete y serializarla en un objeto JSON
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificaToken, verificaAdminRol], (req, res) => {
 
     //res.json('Estamos en usuario con POST');
 
@@ -53,7 +54,8 @@ app.post('/usuario', function(req, res) {
         nombre: body.nombre,
         email: body.email,
         password: bCrypt.hashSync(body.password, 10),
-        role: body.role
+        role: body.role,
+        estado: true
     });
 
     // Grabar en la BBDD
@@ -86,7 +88,7 @@ app.post('/usuario', function(req, res) {
     https://underscorejs.org/
 */
 // :parametro
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdminRol], function(req, res) {
 
     let param_id = req.params.id;
     let param_body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado'] // Array de todos los campos que SI pueden actualizarse
@@ -109,7 +111,7 @@ app.put('/usuario/:id', function(req, res) {
 
 });
 
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRol], function(req, res) {
 
     let id = req.params.id;
 
