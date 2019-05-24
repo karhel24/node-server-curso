@@ -61,7 +61,7 @@ app.post('/usuario', [verificaToken, verificaAdminRol], (req, res) => {
     // Grabar en la BBDD
     usuario.save((err, usuarioDB) => {
         if (err) {
-            return res.status(400).json({
+            return res.status(500).json({
                 ok: false,
                 err
             });
