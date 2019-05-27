@@ -265,7 +265,7 @@ app.delete('/producto/:id', verificaToken, (req, res) => {
         }
         productoDB.disponible = false;
 
-        producto.save((err, productoDB) => {
+        productoDB.save((err, productoDB) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
