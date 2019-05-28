@@ -51,7 +51,33 @@ let verificaAdminRol = (req, res, next) => {
 
 }
 
+/**
+ * 
+ * Verificar Token para Imagen
+ */
+
+let verificaTokenImagen = (req, res, next) => {
+
+    let token = req.query.token; // query para obtener de la URL
+
+    jwt.verify(token, process.env.SEED, (err, decoded) => {
+
+        if (err) {
+            return res.status(401).json({
+                ok: false,
+                err
+            });
+        }
+
+        // Culquier peticion tenga acceso a la informacion del usuario tras verificar el toke
+        req.usuario = decoded.usuario; // Usamos el payload del token decodificado
+        next();
+    });
+
+}
+
 module.exports = {
     verificaToken,
-    verificaAdminRol
+    verificaAdminRol,
+    verificaTokenImagen
 }
